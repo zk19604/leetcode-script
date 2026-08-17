@@ -1,0 +1,59 @@
+name: LeetCode sync
+
+on:
+  schedule:
+    - cron: "17,47 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: leetcode-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Configure commit author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Sync accepted submissions
+        id: initial-sync
+        continue-on-error: true
+        env:
+          LEETCODE_SESSION: ${{ secrets.LEETCODE_SESSION }}
+          LEETCODE_CSRF_TOKEN: ${{ secrets.LEETCODE_CSRF_TOKEN }}
+        run: node sync.js
+
+      - name: Fail non-authentication sync errors
+        if: steps.initial-sync.outcome == 'failure' && steps.initial-sync.outputs.status != 'auth'
+        run: exit 1
+
+      - name: Install Chromium for reactive re-login
+        if: steps.initial-sync.outputs.status == 'auth'
+        run: npx playwright install --with-deps chromium
+
+      - name: Refresh LeetCode session after authentication failure
+        if: steps.initial-sync.outputs.status == 'auth'
+        env:
+          LEETCODE_USERNAME: ${{ secrets.LEETCODE_USERNAME }}
+          LEETCODE_PASSWORD: ${{ secrets.LEETCODE_PASSWORD }}
+          GH_SECRETS_TOKEN: ${{ secrets.GH_SECRETS_TOKEN }}
+        run: node refresh-session.mjs
+
+      - name: Retry sync once with the fresh session
+        if: steps.initial-sync.outputs.status == 'auth'
+        run: node sync.js

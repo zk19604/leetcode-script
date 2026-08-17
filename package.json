@@ -1,0 +1,14 @@
+{
+  "name": "leetcode-github-sync",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "node sync.js",
+    "refresh-session": "node refresh-session.mjs",
+    "test": "node test_sync.mjs"
+  },
+  "dependencies": {
+    "libsodium-wrappers": "^0.7.15",
+    "playwright": "^1.56.0"
+  }
+}
