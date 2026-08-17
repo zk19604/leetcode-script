@@ -62,7 +62,9 @@ async function getConfig() {
 
 async function getState() {
   const { syncState } = await chrome.storage.local.get("syncState");
-  return syncState || { lastSyncedTimestamp: 0, lastSyncedSubmissionIds: [] };
+  const state = syncState || { lastSyncedTimestamp: 0, lastSyncedSubmissionIds: [] };
+  if (!state.solvedProblems) state.solvedProblems = {};
+  return state;
 }
 
 async function setState(state) {
@@ -149,12 +151,46 @@ function buildFiles(question, submission, code, language) {
   ];
 }
 
+function statsTable(items) {
+  const rows = Object.entries(items).sort(([a], [b]) => a.localeCompare(b));
+  if (!rows.length) return "| — | 0 |";
+  return rows.map(([name, count]) => `| ${name} | ${count} |`).join("\n");
+}
+
+function statsReadme(state) {
+  const solved = Object.values(state.solvedProblems);
+  const byDifficulty = {};
+  const byTopic = {};
+  for (const { difficulty, topic } of solved) {
+    byDifficulty[difficulty] = (byDifficulty[difficulty] || 0) + 1;
+    byTopic[topic] = (byTopic[topic] || 0) + 1;
+  }
+  return `# LeetCode Solutions
+
+Automatically synced from accepted LeetCode submissions.
+
+**Unique problems solved:** ${solved.length}
+
+## By difficulty
+
+| Difficulty | Solved |
+| --- | ---: |
+${statsTable(byDifficulty)}
+
+## By primary topic
+
+| Topic | Solved |
+| --- | ---: |
+${statsTable(byTopic)}
+`;
+}
+
 async function ghRequest(path, token, options = {}) {
   const response = await fetch(`${GITHUB_API}${path}`, {
     ...options,
     headers: {
       accept: "application/vnd.github+json",
-      authorization: `Bearer ${token}`,
+      authorization: `token ${token}`,
       "x-github-api-version": "2022-11-28",
       ...(options.body ? { "content-type": "application/json" } : {}),
       ...options.headers,
@@ -232,6 +268,10 @@ async function syncOnce() {
     const language = source.lang?.name || source.lang?.verboseName || submission.lang;
     const files = buildFiles(question, submission, source.code, language);
     const message = `Solved: ${question.questionFrontendId}. ${question.title} (${primaryTopic(question)}, ${question.difficulty})`;
+
+    const dirKey = `${primaryTopic(question)}/${question.questionFrontendId}-${question.titleSlug}`;
+    state.solvedProblems[dirKey] = { difficulty: question.difficulty, topic: primaryTopic(question) };
+    files.push({ path: "README.md", content: statsReadme(state) });
 
     await pushCommit(files, message, config);
     const next = advanceState(state, submission);
