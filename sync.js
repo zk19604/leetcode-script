@@ -311,7 +311,7 @@ function git(args, stdio = "inherit") {
 }
 
 function commitIfChanged(message) {
-  const relativeOutput = path.relative(process.cwd(), OUTPUT_DIR);
+  const relativeOutput = path.relative(process.cwd(), OUTPUT_DIR) || ".";
   git(["add", "--", relativeOutput]);
   try {
     git(["diff", "--cached", "--quiet"], "ignore");
