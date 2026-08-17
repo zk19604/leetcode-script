@@ -23,27 +23,6 @@ public:
     }
     
     head = previous;  // Update head to the new first node
-    
-       /* int i=0; 
-        while(p!=0)
-        {
-            i++;
-            p=p->next;
-        }
-        int * arr=new int[i];
-        p=head;
-        for(int j=0; j<i; j++)
-        {
-            arr[j]=p->val;
-            p=p->next; 
-        }
-        p=head;
-        for(int k=0; k<i; k++)
-        {
-            p->val=arr[i-k-1];
-            p=p->next;
-        }
-        delete[] arr;*/
         return head;
     }
 };
