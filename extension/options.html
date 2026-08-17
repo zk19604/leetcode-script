@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>LeetCode GitHub Sync</title>
+  <style>
+    body { font: 14px system-ui, sans-serif; width: 320px; padding: 12px; }
+    label { display: block; margin-top: 8px; font-weight: 600; }
+    input { width: 100%; box-sizing: border-box; padding: 4px; margin-top: 2px; }
+    button { margin-top: 12px; padding: 6px 10px; }
+    #status { margin-top: 10px; font-size: 12px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <label>GitHub token (repo contents write)
+    <input id="token" type="password" placeholder="ghp_..." />
+  </label>
+  <label>Owner
+    <input id="owner" placeholder="zk19604" />
+  </label>
+  <label>Repo
+    <input id="repo" placeholder="leetcode-submissions" />
+  </label>
+  <label>Branch
+    <input id="branch" placeholder="main" />
+  </label>
+  <button id="save">Save</button>
+  <button id="syncNow">Sync now</button>
+  <div id="status"></div>
+  <script src="options.js"></script>
+</body>
+</html>
