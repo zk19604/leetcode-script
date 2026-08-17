@@ -2,7 +2,7 @@
 
 - **Link:** https://leetcode.com/problems/reverse-linked-list/
 - **Difficulty:** Easy
-- **Solved:** 2024-09-01
+- **Solved:** 2024-09-02
 - **Topics:** Linked List, Recursion
 - **Primary topic:** linked-list
 
