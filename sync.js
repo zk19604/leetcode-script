@@ -1,10 +1,12 @@
 import { appendFileSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const LEETCODE_URL = "https://leetcode.com/graphql";
-const OUTPUT_DIR = path.resolve(process.env.LEETCODE_OUTPUT_DIR || "leetcode");
+const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
+// Run this from the solutions repository; its root receives topics/, README.md, and .sync-state.json.
+const OUTPUT_DIR = path.resolve(process.env.LEETCODE_OUTPUT_DIR || ".");
 const TOPICS_DIR = path.join(OUTPUT_DIR, "topics");
 const STATE_FILE = path.join(OUTPUT_DIR, ".sync-state.json");
 const REQUEST_DELAY_MS = 500;
@@ -325,6 +327,9 @@ function setWorkflowStatus(status) {
 }
 
 export async function sync() {
+  if (path.resolve(process.cwd()) === SCRIPT_DIR) {
+    throw new Error("Run sync.js from the separate solutions repository, not the script repository.");
+  }
   const state = readState();
   const submissions = await listNewAcceptedSubmissions(state);
   let changed = false;
