@@ -2,16 +2,16 @@
 
 Automatically synced from accepted LeetCode submissions.
 
-**Unique problems solved:** 1
+**Unique problems solved:** 2
 
 ## By difficulty
 
 | Difficulty | Solved |
 | --- | ---: |
-| Easy | 1 |
+| Easy | 2 |
 
 ## By primary topic
 
 | Topic | Solved |
 | --- | ---: |
-| linked-list | 1 |
+| linked-list | 2 |
